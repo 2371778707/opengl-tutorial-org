@@ -1,5 +1,5 @@
 #include <vector>
-#include <cstring>
+#include <string>
 
 #include <GL/glew.h>
 
@@ -18,7 +18,7 @@ unsigned int Text2DUVBufferID;
 unsigned int Text2DShaderID;
 unsigned int Text2DUniformID;
 
-void initText2D(const char * texturePath){
+void initText2D(const std::string &texturePath){
 
 	// Initialize texture
 	Text2DTextureID = loadDDS(texturePath);
@@ -35,14 +35,12 @@ void initText2D(const char * texturePath){
 
 }
 
-void printText2D(const char * text, int x, int y, int size){
-
-	unsigned int length = strlen(text);
+void printText2D(const std::string &text, int x, int y, int size){
 
 	// Fill buffers
 	std::vector<glm::vec2> vertices;
 	std::vector<glm::vec2> UVs;
-	for ( unsigned int i=0 ; i<length ; i++ ){
+	for ( unsigned int i=0 ; i < text.length() ; i++ ){
 		
 		glm::vec2 vertex_up_left    = glm::vec2( x+i*size     , y+size );
 		glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size );

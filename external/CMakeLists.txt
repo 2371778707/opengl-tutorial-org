@@ -94,7 +94,6 @@ set(ANTTWEAKBAR_SOURCE
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwMgr.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwOpenGL.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwOpenGLCore.mm
-	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwPrecomp.mm
 )
 include_directories(
 	${CMAKE_SOURCE_DIR}/external/AntTweakBar-1.16/src/

@@ -1,15 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdexcept>
+#include <iostream>
+#include <cstdio>
+#include <cstring>
 
 #include <GL/glew.h>
 
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 
 
-GLuint loadBMP_custom(const char * imagepath){
-
-	printf("Reading image %s\n", imagepath);
+GLuint loadBMP_custom(const std::string &imagepath)
+{
+	std::cout << "Reading image" << imagepath << std::endl;
 
 	// Data read from the header of the BMP file
 	unsigned char header[54];
@@ -20,24 +21,26 @@ GLuint loadBMP_custom(const char * imagepath){
 	unsigned char * data;
 
 	// Open the file
-	FILE * file = fopen(imagepath,"rb");
-	if (!file)							    {printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar(); return 0;}
+	FILE * file = fopen(imagepath.c_str(),"rb");
+	if (!file)
+		throw std::runtime_error(imagepath + " could not be opened");
 
 	// Read the header, i.e. the 54 first bytes
 
 	// If less than 54 bytes are read, problem
-	if ( fread(header, 1, 54, file)!=54 ){ 
-		printf("Not a correct BMP file\n");
-		return 0;
-	}
+	if (fread(header, 1, 54, file)!=54)
+		throw std::runtime_error("Not a correct BMP file");
+
 	// A BMP files always begins with "BM"
-	if ( header[0]!='B' || header[1]!='M' ){
-		printf("Not a correct BMP file\n");
-		return 0;
-	}
+	if (header[0]!='B' || header[1]!='M')
+		throw std::runtime_error("Not a correct BMP file");
+
 	// Make sure this is a 24bpp file
-	if ( *(int*)&(header[0x1E])!=0  )         {printf("Not a correct BMP file\n");    return 0;}
-	if ( *(int*)&(header[0x1C])!=24 )         {printf("Not a correct BMP file\n");    return 0;}
+	if ( *(int*)&(header[0x1E])!=0  )
+		throw std::runtime_error("Not a correct BMP file");
+
+	if ( *(int*)&(header[0x1C])!=24 )
+		throw std::runtime_error("Not a correct BMP file");
 
 	// Read the information about the image
 	dataPos    = *(int*)&(header[0x0A]);
@@ -88,7 +91,7 @@ GLuint loadBMP_custom(const char * imagepath){
 
 // Since GLFW 3, glfwLoadTexture2D() has been removed. You have to use another texture loading library, 
 // or do it yourself (just like loadBMP_custom and loadDDS)
-//GLuint loadTGA_glfw(const char * imagepath){
+//GLuint loadTGA_glfw(const std::string &imagepath){
 //
 //	// Create one OpenGL texture
 //	GLuint textureID;
@@ -117,23 +120,21 @@ GLuint loadBMP_custom(const char * imagepath){
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
 #define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
 
-GLuint loadDDS(const char * imagepath){
+GLuint loadDDS(const std::string &imagepath)
+{
+	std::cout << "Reading DDS file " << imagepath << std::endl;
 
 	unsigned char header[124];
 
-	FILE *fp; 
- 
-	/* try to open the file */ 
-	fp = fopen(imagepath, "rb"); 
-	if (fp == NULL){
-		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar(); 
-		return 0;
-	}
-   
+	/* try to open the file */
+	FILE *fp = fopen(imagepath.c_str(), "rb");
+	if (fp == NULL)
+		throw std::runtime_error(imagepath + " could not be opened");
+
 	/* verify the type of file */ 
 	char filecode[4]; 
-	fread(filecode, 1, 4, fp); 
-	if (strncmp(filecode, "DDS ", 4) != 0) { 
+	std::fread(filecode, 1, 4, fp);
+	if (std::strncmp(filecode, "DDS ", 4) != 0) {
 		fclose(fp); 
 		return 0; 
 	}

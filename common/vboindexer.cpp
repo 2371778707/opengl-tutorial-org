@@ -1,12 +1,10 @@
 #include <vector>
 #include <map>
+#include <cstring>
 
 #include <glm/glm.hpp>
 
 #include "vboindexer.hpp"
-
-#include <string.h> // for memcmp
-
 
 // Returns true iif v1 can be considered equal to v2
 bool is_near(float v1, float v2){
@@ -79,8 +77,8 @@ struct PackedVertex{
 	glm::vec2 uv;
 	glm::vec3 normal;
 	bool operator<(const PackedVertex that) const{
-		return memcmp((void*)this, (void*)&that, sizeof(PackedVertex))>0;
-	};
+		return std::memcmp((void*)this, (void*)&that, sizeof(PackedVertex))>0;
+	}
 };
 
 bool getSimilarVertexIndex_fast( 

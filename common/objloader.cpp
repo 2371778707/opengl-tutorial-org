@@ -1,6 +1,7 @@
 #include <vector>
-#include <stdio.h>
 #include <string>
+#include <iostream>
+#include <stdexcept>
 #include <cstring>
 
 #include <glm/glm.hpp>
@@ -18,12 +19,12 @@
 // - Loading from memory, stream, etc
 
 bool loadOBJ(
-	const char * path, 
-	std::vector<glm::vec3> & out_vertices, 
+	const std::string &path,
+	std::vector<glm::vec3> & out_vertices,
 	std::vector<glm::vec2> & out_uvs,
 	std::vector<glm::vec3> & out_normals
 ){
-	printf("Loading OBJ file %s...\n", path);
+	std::cout << "Loading OBJ file " << path << std::endl;
 
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
 	std::vector<glm::vec3> temp_vertices; 
@@ -31,12 +32,9 @@ bool loadOBJ(
 	std::vector<glm::vec3> temp_normals;
 
 
-	FILE * file = fopen(path, "r");
-	if( file == NULL ){
-		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
-		getchar();
-		return false;
-	}
+	FILE *file = fopen(path.c_str(), "r");
+	if (file == NULL)
+		throw std::runtime_error(path + " could not be opened");
 
 	while( 1 ){
 
@@ -48,7 +46,7 @@ bool loadOBJ(
 
 		// else : parse lineHeader
 		
-		if ( strcmp( lineHeader, "v" ) == 0 ){
+		if (std::strcmp( lineHeader, "v" ) == 0 ){
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
 			temp_vertices.push_back(vertex);
@@ -65,10 +63,8 @@ bool loadOBJ(
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
-			if (matches != 9){
-				printf("File can't be read by our simple parser :-( Try exporting with other options\n");
-				return false;
-			}
+			if (matches != 9)
+				throw std::runtime_error("File can't be read by our simple parser"); // Try exporting with other options
 			vertexIndices.push_back(vertexIndex[0]);
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
@@ -118,7 +114,7 @@ bool loadOBJ(
 #include <assimp/postprocess.h>     // Post processing flags
 
 bool loadAssImp(
-	const char * path, 
+	const std::string &path,
 	std::vector<unsigned short> & indices,
 	std::vector<glm::vec3> & vertices,
 	std::vector<glm::vec2> & uvs,
@@ -129,10 +125,10 @@ bool loadAssImp(
 
 	const aiScene* scene = importer.ReadFile(path, 0/*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
 	if( !scene) {
-		fprintf( stderr, importer.GetErrorString());
-		getchar();
-		return false;
+		std::string error(reinterpret_cast<const char*>(importer.GetErrorString()));
+		throw std::runtime_error("glewInit error: " + error);
 	}
+
 	const aiMesh* mesh = scene->mMeshes[0]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
 
 	// Fill vertices positions
